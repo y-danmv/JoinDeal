@@ -62,6 +62,35 @@ class AuthController extends Controller
 
     }
 
+    public function register()
+{
+    return view('register'); // vai carregar a view de cadastro
+}
+
+public function registerSubmit(Request $request)
+{
+    $request->validate([
+        'text_username' => 'required|email|unique:users,username',
+        'text_password' => 'required|min:6|max:12',
+    ], [
+        'text_username.required' => 'O campo de e-mail é obrigatório',
+        'text_username.email' => 'O campo de e-mail deve conter um endereço válido',
+        'text_username.unique' => 'Este e-mail já está em uso',
+        'text_password.required' => 'A senha é obrigatória',
+        'text_password.min' => 'A senha deve ter pelo menos :min caracteres',
+        'text_password.max' => 'A senha deve ter no máximo :max caracteres',
+    ]);
+
+    // Criar novo usuário
+    $user = new User();
+    $user->username = $request->input('text_username');
+    $user->password = bcrypt($request->input('text_password'));
+    $user->save();
+
+    // Redireciona para login com mensagem
+    return redirect()->route('login')->with('success', 'Cadastro realizado com sucesso! Faça login.');
+}
+
 
 
     public function logout(){
