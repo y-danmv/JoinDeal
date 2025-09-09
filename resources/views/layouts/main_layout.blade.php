@@ -3,40 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes</title>
+    <title>JoinDeal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #334155; /* cinza escuro */
+            color: #ffffff;
+        }
+
+        .navbar {
+            background-color: #7C3AED !important; /* roxo */
+        }
+
+        .navbar .navbar-brand {
+            color: #ffffff !important;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .navbar .nav-link {
+            color: #ffffff !important;
+        }
+
+        .navbar .nav-link.active {
+            border-bottom: 2px solid #38BDF8;
+        }
+
+        .btn-primary {
+            background-color: #7C3AED;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #6D28D9;
+        }
+
+        .btn-outline-light {
+            color: #38BDF8;
+            border-color: #38BDF8;
+        }
+        .btn-outline-light:hover {
+            background-color: #38BDF8;
+            color: #334155;
+        }
+
+        .card {
+            background-color: #1E293B;
+            color: #ffffff;
+            border-radius: 1rem;
+        }
+
+        .form-control {
+            background-color: #334155;
+            color: #ffffff;
+            border: 1px solid #475569;
+        }
+        .form-control:focus {
+            border-color: #7C3AED;
+            box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+        }
+
+        .invalid-feedback {
+            color: #F87171;
+        }
+    </style>
 </head>
-<body class="bg-light">
-
-    <!-- Navbar fixa no topo -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid">
-            <!-- Logo -->
-            <a class="navbar-brand fw-bold" href="{{ url('/') }}">
-                Notes
-            </a>
-
-            <!-- Botão de toggle (mobile) -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="{{ route('home') }}">JoinDeal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <!-- Links -->
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="btn btn-outline-light ms-2 {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">Sign In</a>
+                        <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Início</a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-outline-light ms-2 {{ request()->routeIs('register') ? 'active' : '' }}" href="{{ route('register') }}">Sign Up</a>
+                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">Entrar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}" href="{{ route('register') }}">Cadastrar</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Aqui vem o conteúdo de cada página -->
-    <main>
+    <!-- Conteúdo -->
+    <main class="pt-5 mt-5">
         @yield('content')
     </main>
 

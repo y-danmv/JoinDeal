@@ -1,52 +1,35 @@
 @extends('layouts.main_layout')
 
 @section('content')
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-sm-8">
-            <div class="card p-5 shadow-lg border-0 rounded-4">
-                <!-- Imagem do logotipo -->
-                <div class="text-center p-3">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="Logo Notes" style="max-width: 100px;">
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-5">
+        <div class="card p-4 shadow-lg border-0">
+            <h3 class="text-center fw-bold mb-4 text-info">Entrar no JoinDeal</h3>
+            <form action="{{ route('login.submit') }}" method="POST" novalidate>
+                @csrf
+                <div class="mb-3">
+                    <label for="text_username" class="form-label">E-mail</label>
+                    <input class="form-control @error('text_username') is-invalid @enderror" 
+                           type="text" name="text_username" value="{{ old('text_username') }}">
+                    @error('text_username')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <!-- Formulário -->
-                <div class="row justify-content-center">
-                    <div class="col-md-10 col-12">
-                        <form action="{{ route('login.submit') }}" method="POST" novalidate>
-                            @csrf
-                            <div class="mb-3">
-                                <label for="text_username" class="form-label fw-bold">Username</label>
-                                <input class="form-control bg-dark text-info @error('text_username') is-invalid @enderror" 
-                                       type="text" 
-                                       name="text_username" 
-                                       value="{{ old('text_username') }}">
-                                @error('text_username')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="text_password" class="form-label fw-bold">Password</label>
-                                <input class="form-control bg-dark text-info @error('text_password') is-invalid @enderror" 
-                                       type="password" 
-                                       name="text_password">
-                                @error('text_password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <button class="btn btn-primary w-100 fw-bold" type="submit">LOGIN</button>
-                            </div>
-                        </form>
-                    </div>
+                <div class="mb-3">
+                    <label for="text_password" class="form-label">Senha</label>
+                    <input class="form-control @error('text_password') is-invalid @enderror" 
+                           type="password" name="text_password">
+                    @error('text_password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <div class="text-center text-secondary mt-3">
-                    <small>&copy; {{ date('Y') }} Notes</small>
-                </div>
-            </div>
+                <button class="btn btn-primary w-100 fw-bold">Entrar</button>
+            </form>
+            <p class="text-center mt-3 mb-0">
+                Ainda não tem conta? <a href="{{ route('register') }}" class="text-info">Cadastre-se</a>
+            </p>
         </div>
     </div>
 </div>
