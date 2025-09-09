@@ -18,6 +18,7 @@
 
         .navbar .navbar-brand img {
             height: 40px; 
+
         }
 
         .navbar .nav-link {
@@ -47,6 +48,7 @@
 
         .card {
             background-color: rgba(30, 41, 59, 0.9);
+
             color: #ffffff;
             border-radius: 1rem;
         }
