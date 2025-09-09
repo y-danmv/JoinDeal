@@ -10,16 +10,17 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id()->autoincrement();
-            $table->string('username',50)->nullable();
-            $table->string('password',200)->nullable();
-            $table->dateTime('last_login')->nullable();
-            $table->timestamps(); //created_at updated_at
-            $table->softDeletes(); //deleted_at
-        });
-    }
+{
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();
+        $table->string('name', 100); // nome do usuário
+        $table->string('email', 100)->unique(); // email único
+        $table->string('password', 200); // senha
+        $table->dateTime('last_login')->nullable(); // última vez que logou
+        $table->timestamps(); // created_at e updated_at
+        $table->softDeletes(); // deleted_at
+    });
+}
 
     /**
      * Reverse the migrations.

@@ -8,29 +8,22 @@
             <form action="{{ route('login.submit') }}" method="POST" novalidate>
                 @csrf
                 <div class="mb-3">
-                    <label for="text_username" class="form-label">E-mail</label>
-                    <input class="form-control @error('text_username') is-invalid @enderror" 
-                           type="text" name="text_username" value="{{ old('text_username') }}">
-                    @error('text_username')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+    <label for="email" class="form-label">E-mail</label>
+    <input class="form-control @error('email') is-invalid @enderror" 
+           type="email" name="email" value="{{ old('email') }}">
+    @error('email')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
 
-                <div class="mb-3">
-                    <label for="text_password" class="form-label">Senha</label>
-                    <input class="form-control @error('text_password') is-invalid @enderror" 
-                           type="password" name="text_password">
-                    @error('text_password')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <button class="btn btn-primary w-100 fw-bold">Entrar</button>
-            </form>
-            <p class="text-center mt-3 mb-0">
-                Ainda não tem conta? <a href="{{ route('register') }}" class="text-info">Cadastre-se</a>
-            </p>
-        </div>
+<div class="mb-3">
+    <label for="password" class="form-label">Senha</label>
+    <input class="form-control @error('password') is-invalid @enderror" 
+           type="password" name="password">
+    @error('password')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
     </div>
 </div>
 @endsection

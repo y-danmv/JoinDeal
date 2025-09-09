@@ -7,18 +7,18 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #334155; /* cinza escuro */
             color: #ffffff;
+            min-height: 100vh;
         }
 
+        /* Navbar cinza escuro */
         .navbar {
-            background-color: #7C3AED !important; /* roxo */
+            background-color: #2d3949 !important; 
         }
 
-        .navbar .navbar-brand {
-            color: #ffffff !important;
-            font-weight: bold;
-            font-size: 1.3rem;
+        .navbar .navbar-brand img {
+            height: 40px; 
+
         }
 
         .navbar .nav-link {
@@ -47,7 +47,8 @@
         }
 
         .card {
-            background-color: #1E293B;
+            background-color: rgba(30, 41, 59, 0.9);
+
             color: #ffffff;
             border-radius: 1rem;
         }
@@ -65,13 +66,27 @@
         .invalid-feedback {
             color: #F87171;
         }
+
+        /* Homepage (cinza escuro) */
+        .home-bg {
+            background-color: #334155; 
+            min-height: 100vh;
+        }
+
+        /* Login e Registro (gradiente roxo -> azul claro) */
+        .auth-bg {
+            background: linear-gradient(135deg, #7C3AED, #38BDF8); 
+            min-height: 100vh;
+        }
     </style>
 </head>
-<body>
+<body class="{{ request()->routeIs('home') ? 'home-bg' : 'auth-bg' }}">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ route('home') }}">JoinDeal</a>
+            <a class="navbar-brand" href="{{ route('home') }}">
+                <img src="{{ asset('assets/images/logo-joindeal.png') }}" alt="JoinDeal Logo">
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>

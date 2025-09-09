@@ -3,104 +3,101 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class AuthController extends Controller
 {
+    // Página inicial
     public function home()
     {
-    return view('home');
+        return view('home');
     }
-    
-    public function login(){
+
+    // Exibe formulário de login
+    public function login()
+    {
         return view('login');
     }
 
-    public function loginSubmit(Request $request){
-        // Obtendo dados do request
-        // dd($request);
-
+    // Processa login
+    public function loginSubmit(Request $request)
+    {
         $request->validate([
             'text_username' => 'required|email',
             'text_password' => 'required|min:6|max:12',
-        ],
-        [
-            //Mensagem para text_username
+        ], [
             'text_username.required' => 'O campo de e-mail é obrigatório',
-            'text_username.email' => 'O campo de e-mail deve conter um endereço válido',
-
-            //Mensagem para text_password
+            'text_username.email' => 'Digite um e-mail válido',
             'text_password.required' => 'A senha é obrigatória',
             'text_password.min' => 'A senha deve ter pelo menos :min caracteres',
             'text_password.max' => 'A senha deve ter no máximo :max caracteres',
+        ]);
 
-        ]
-    );
+        $credentials = [
+            'email' => $request->input('text_username'),
+            'password' => $request->input('text_password'),
+        ];
 
-        $username = $request->input('text_username');
-        $password = $request->input('text_password');
-        // return "OK";
-        // echo "Usuário: " . $username . "<BR>";
-        // echo "Password: " . $password;
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
 
-        // try{
-        //     DB::connection()->getPdo();
-        //     echo "Conexão com o banco de dados feita com sucesso!";
-        // } catch(\PDOException $e){
-        //     echo "A conexão falhou: " . $e->getMessage();
-        // }
+            // Atualiza last_login
+            $user = Auth::user();
+            $user->last_login = now();
+            $user->save();
 
-        // $usuarios = User::all()->toArray();
-        // echo '<pre>';
-        // print_r($usuarios);
-        // echo '</pre>';
+            return redirect()->route('home')->with('success', 'Login realizado com sucesso!');
+        }
 
-        //Selecionando apenas 1 usuario
-        $user = User::where('username', $username)
-                      ->whereNull('deleted_at')
-                      ->first();
-        echo '<pre>';
-        print_r($user);
-        echo '</pre>';
-
+        return back()->withErrors([
+            'text_username' => 'E-mail ou senha inválidos.',
+        ])->onlyInput('text_username');
     }
 
+    // Exibe formulário de registro
     public function register()
-{
-    return view('register'); // vai carregar a view de cadastro
-}
-
-public function registerSubmit(Request $request)
-{
-    $request->validate([
-        'text_username' => 'required|email|unique:users,username',
-        'text_password' => 'required|min:6|max:12',
-    ], [
-        'text_username.required' => 'O campo de e-mail é obrigatório',
-        'text_username.email' => 'O campo de e-mail deve conter um endereço válido',
-        'text_username.unique' => 'Este e-mail já está em uso',
-        'text_password.required' => 'A senha é obrigatória',
-        'text_password.min' => 'A senha deve ter pelo menos :min caracteres',
-        'text_password.max' => 'A senha deve ter no máximo :max caracteres',
-    ]);
-
-    // Criar novo usuário
-    $user = new User();
-    $user->username = $request->input('text_username');
-    $user->password = bcrypt($request->input('text_password'));
-    $user->save();
-
-    // Redireciona para login com mensagem
-    return redirect()->route('login')->with('success', 'Cadastro realizado com sucesso! Faça login.');
-}
-
-
-
-    public function logout(){
-        echo 'Desconectado';
+    {
+        return view('register');
     }
 
+    // Processa registro
+    public function registerSubmit(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|max:12|confirmed',
+        ], [
+            'name.required' => 'O nome é obrigatório',
+            'email.required' => 'O e-mail é obrigatório',
+            'email.unique' => 'Este e-mail já está cadastrado',
+            'password.required' => 'A senha é obrigatória',
+            'password.min' => 'A senha deve ter pelo menos :min caracteres',
+            'password.max' => 'A senha deve ter no máximo :max caracteres',
+            'password.confirmed' => 'A confirmação de senha não confere',
+        ]);
 
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        // Faz login automático após cadastro
+        Auth::login($user);
+
+        return redirect()->route('home')->with('success', 'Cadastro realizado com sucesso! Bem-vindo ao JoinDeal!');
+    }
+
+    // Logout
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('success', 'Você saiu da sua conta.');
+    }
 }
