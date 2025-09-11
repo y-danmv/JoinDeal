@@ -7,6 +7,8 @@
             <h3 class="text-center fw-bold mb-4 text-info">Cadastrar no JoinDeal</h3>
             <form action="{{ route('register.submit') }}" method="POST" novalidate>
                 @csrf
+                
+
                 <div class="mb-3">
                     <label for="name" class="form-label">Nome</label>
                     <input class="form-control @error('name') is-invalid @enderror" 
@@ -33,6 +35,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+
 
                 <div class="mb-3">
                     <label for="password_confirmation" class="form-label">Confirmar senha</label>

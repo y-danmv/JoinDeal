@@ -67,13 +67,13 @@
             color: #F87171;
         }
 
-        /* Homepage (cinza escuro) */
+        
         .home-bg {
             background-color: #334155; 
             min-height: 100vh;
         }
 
-        /* Login e Registro (gradiente roxo -> azul claro) */
+        
         .auth-bg {
             background: linear-gradient(135deg, #7C3AED, #38BDF8); 
             min-height: 100vh;
@@ -94,12 +94,12 @@
         }
 
         .alert button.btn-close {
-            filter: invert(1); /* botão de fechar branco */
+            filter: invert(1); 
         }
     </style>
 </head>
 <body class="{{ request()->routeIs('home') ? 'home-bg' : 'auth-bg' }}">
-    <!-- Navbar -->
+    
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ route('home') }}">

@@ -20,7 +20,29 @@ class AuthController extends Controller
     
     public function loginSubmit(Request $request)
     {
-        return redirect()->route('home')->with('success', 'Login!');
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6|max:12',
+        ], [
+            'email.required' => 'O e-mail é obrigatório',
+            'email.email' => 'Insira um e-mail válido',
+            'password.required' => 'A senha é obrigatória',
+            'password.min' => 'A senha deve ter pelo menos :min caracteres',
+            'password.max' => 'A senha deve ter no máximo :max caracteres',
+        ]);
+
+        
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'Usuário não encontrado.'])->withInput();
+        }
+
+        if (!password_verify($request->password, $user->password)) {
+            return back()->withErrors(['password' => 'Senha incorreta.'])->withInput();
+        }
+
+        return redirect()->route('home')->with('success', 'Login efetuado com sucesso!');
     }
 
     public function register()
