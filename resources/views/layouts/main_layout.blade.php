@@ -78,6 +78,24 @@
             background: linear-gradient(135deg, #7C3AED, #38BDF8); 
             min-height: 100vh;
         }
+
+        .alert-success-custom {
+            background-color: #38BDF8 !important;
+            color: #FFFFFF !important;
+            border: 1px solid #334155 !important;
+            font-weight: bold;
+        }
+
+        .alert-error-custom {
+            background-color: #7C3AED !important; 
+            color: #FFFFFF !important;
+            border: 1px solid #334155 !important; 
+            font-weight: bold;
+        }
+
+        .alert button.btn-close {
+            filter: invert(1); /* botão de fechar branco */
+        }
     </style>
 </head>
 <body class="{{ request()->routeIs('home') ? 'home-bg' : 'auth-bg' }}">
@@ -106,8 +124,20 @@
         </div>
     </nav>
 
-    <!-- Conteúdo -->
     <main class="pt-5 mt-5">
+        @if(session('success'))
+            <div class="alert alert-success-custom alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger-custom alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         @yield('content')
     </main>
 

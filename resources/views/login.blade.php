@@ -7,23 +7,24 @@
             <h3 class="text-center fw-bold mb-4 text-info">Entrar no JoinDeal</h3>
             <form action="{{ route('login.submit') }}" method="POST" novalidate>
                 @csrf
-                <div class="mb-3">
-    <label for="email" class="form-label">E-mail</label>
-    <input class="form-control @error('email') is-invalid @enderror" 
-           type="email" name="email" value="{{ old('email') }}">
-    @error('email')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
 
-<div class="mb-3">
-    <label for="password" class="form-label">Senha</label>
-    <input class="form-control @error('password') is-invalid @enderror" 
-           type="password" name="password">
-    @error('password')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input class="form-control" type="email" name="email" value="{{ old('email') }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Senha</label>
+                    <input class="form-control" type="password" name="password">
+                </div>
+
+                <button class="btn btn-primary w-100 fw-bold">Entrar</button>
+            </form>
+
+            <p class="text-center mt-3 mb-0">
+                Ainda não tem conta? <a href="{{ route('register') }}" class="text-info">Cadastre-se</a>
+            </p>
+        </div>
     </div>
 </div>
 @endsection
