@@ -56,6 +56,10 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|max:12|confirmed',
+            // NOVAS VALIDAÇÕES
+            'cidade' => 'required|string|max:100',
+            'cpf' => 'required|string|max:14|unique:users,cpf', // CPF com no máximo 14 (para incluir formatação)
+            'tipo' => 'required|in:Cliente,Funcionario', // Garante que seja um dos dois valores
         ], [
             'name.required' => 'O nome é obrigatório',
             'email.required' => 'O e-mail é obrigatório',
@@ -64,11 +68,22 @@ class AuthController extends Controller
             'password.min' => 'A senha deve ter pelo menos :min caracteres',
             'password.max' => 'A senha deve ter no máximo :max caracteres',
             'password.confirmed' => 'A confirmação de senha não confere',
+            // NOVAS MENSAGENS DE ERRO
+            'cidade.required' => 'A cidade é obrigatória',
+            'cpf.required' => 'O CPF é obrigatório',
+            'cpf.unique' => 'Este CPF já está cadastrado',
+            'tipo.required' => 'O tipo de usuário é obrigatório',
+            'tipo.in' => 'O tipo de usuário selecionado é inválido',
         ]);
 
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
+        // NOVOS CAMPOS
+        $user->cidade = $request->cidade;
+        $user->cpf = $request->cpf;
+        $user->tipo = $request->tipo;
+        // FIM NOVOS CAMPOS
         $user->password = bcrypt($request->password);
         $user->save();
 
