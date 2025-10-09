@@ -10,7 +10,7 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">E-mail</label>
+                    <label class="form-label">E-mail ou CPF</label>
                     <input class="form-control @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}">
                     @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>

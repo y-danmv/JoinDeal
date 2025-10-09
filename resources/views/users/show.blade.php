@@ -8,7 +8,10 @@
             
             <p><strong>Nome:</strong> {{ $user->name }}</p>
             <p><strong>E-mail:</strong> {{ $user->email }}</p>
-            <p><strong>CPF:</strong> {{ $user->cpf }}</p>       <p><strong>Cidade:</strong> {{ $user->cidade }}</p> <p><strong>Tipo:</strong> {{ $user->tipo }}</p>     <p><strong>Criado em:</strong> {{ $user->created_at->format('d/m/Y H:i') }}</p>
+            <p><strong>CPF:</strong> {{ $user->cpf }}</p>
+            <p><strong>Cidade:</strong> {{ $user->cidade }}</p>
+            <p><strong>Tipo:</strong> {{ $user->tipo }}</p>
+            <p><strong>Criado em:</strong> {{ $user->created_at->format('d/m/Y H:i') }}</p>
             <p><strong>Atualizado em:</strong> {{ $user->updated_at->format('d/m/Y H:i') }}</p>
 
             <hr>

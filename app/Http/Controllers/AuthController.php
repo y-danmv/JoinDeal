@@ -38,6 +38,7 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Usuário não encontrado.'])->withInput();
         }
 
+        // Verifica a senha usando password_verify, conforme o padrão bcrypt/hash do Laravel.
         if (!password_verify($request->password, $user->password)) {
             return back()->withErrors(['password' => 'Senha incorreta.'])->withInput();
         }
@@ -50,16 +51,17 @@ class AuthController extends Controller
         return view('register');
     }
     
+    
     public function registerSubmit(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|max:12|confirmed',
-            // NOVAS VALIDAÇÕES
             'cidade' => 'required|string|max:100',
-            'cpf' => 'required|string|max:14|unique:users,cpf', // CPF com no máximo 14 (para incluir formatação)
-            'tipo' => 'required|in:Cliente,Funcionario', // Garante que seja um dos dois valores
+            // Validação CPF: Garante o formato 000.000.000-00 e verifica a unicidade.
+            'cpf' => 'required|string|max:14|regex:/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/|unique:users,cpf', 
+            'tipo' => 'required|in:Cliente,Funcionario', 
         ], [
             'name.required' => 'O nome é obrigatório',
             'email.required' => 'O e-mail é obrigatório',
@@ -68,28 +70,31 @@ class AuthController extends Controller
             'password.min' => 'A senha deve ter pelo menos :min caracteres',
             'password.max' => 'A senha deve ter no máximo :max caracteres',
             'password.confirmed' => 'A confirmação de senha não confere',
-            // NOVAS MENSAGENS DE ERRO
             'cidade.required' => 'A cidade é obrigatória',
             'cpf.required' => 'O CPF é obrigatório',
+            // MENSAGEM DE ERRO ESPECÍFICA PARA O FORMATO INVÁLIDO
+            'cpf.regex' => 'O CPF deve estar no formato 000.000.000-00.', 
             'cpf.unique' => 'Este CPF já está cadastrado',
             'tipo.required' => 'O tipo de usuário é obrigatório',
             'tipo.in' => 'O tipo de usuário selecionado é inválido',
         ]);
 
+        // Pré-processamento: Remove pontos e traços do CPF para salvar apenas os 11 dígitos numéricos
+        $cpfSemMascara = preg_replace('/[^0-9]/', '', $request->cpf);
+
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
-        // NOVOS CAMPOS
         $user->cidade = $request->cidade;
-        $user->cpf = $request->cpf;
         $user->tipo = $request->tipo;
-        // FIM NOVOS CAMPOS
-        $user->password = bcrypt($request->password);
+        
+        // SALVANDO APENAS NÚMEROS LIMPOS
+        $user->cpf = $cpfSemMascara; 
+        
+        $user->password = bcrypt($request->password); 
         $user->save();
 
         return redirect()->route('home')->with('success', 'Cadastro efetuado com sucesso!');
-
-
     }
 
     public function logout(Request $request)
