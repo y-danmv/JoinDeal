@@ -6,8 +6,7 @@
         <div class="card p-4 shadow-lg border-0">
             <h3 class="text-center fw-bold mb-4 text-info">Detalhes do Usuário (ID: {{ $user->id }})</h3>
             
-            <p><strong>Nome:</strong> {{ $user->name }}</p>
-            <p><strong>E-mail:</strong> {{ $user->email }}</p>
+            <p><strong>Nome:</strong> {{ $user->nome }}</p> <p><strong>E-mail:</strong> {{ $user->email }}</p>
             <p><strong>CPF:</strong> {{ $user->cpf }}</p>
             <p><strong>Cidade:</strong> {{ $user->cidade }}</p>
             <p><strong>Tipo:</strong> {{ $user->tipo }}</p>

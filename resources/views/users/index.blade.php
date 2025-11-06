@@ -11,18 +11,22 @@
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
-                        <th scope="col">Nome</th>
-                        <th scope="col">E-mail</th>
-                        <th scope="col">CPF</th>       <th scope="col">Cidade</th>    <th scope="col">Tipo</th>      <th scope="col">Ações</th>
+                        <th scope="col">Nome</th> <th scope="col">E-mail</th>
+                        <th scope="col">CPF</th>
+                        <th scope="col">Cidade</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($users as $user)
                         <tr>
                             <th scope="row">{{ $user->id }}</th>
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->cpf }}</td>    <td>{{ $user->cidade }}</td> <td>{{ $user->tipo }}</td>   <td>
+                            <td>{{ $user->nome }}</td> <td>{{ $user->email }}</td>
+                            <td>{{ $user->cpf }}</td>
+                            <td>{{ $user->cidade }}</td>
+                            <td>{{ $user->tipo }}</td>
+                            <td>
                                 <a href="{{ route('users.show', $user->id) }}" class="btn btn-sm btn-outline-info me-2">Ver</a>
                                 <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-outline-warning me-2">Editar</a>
                                 <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">

@@ -11,10 +11,10 @@
                 @method('PUT') 
 
                 <div class="mb-3">
-                    <label for="name" class="form-label">Nome</label>
-                    <input class="form-control @error('name') is-invalid @enderror" 
-                           type="text" name="name" value="{{ old('name', $user->name) }}">
-                    @error('name')
+                    <label for="nome" class="form-label">Nome</label>
+                    <input class="form-control @error('nome') is-invalid @enderror" 
+                           type="text" name="nome" value="{{ old('nome', $user->nome) }}">
+                    @error('nome')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -28,13 +28,11 @@
                     @enderror
                 </div>
                 
-                <!-- NOVO CAMPO: CIDADE (Select) -->
                 <div class="mb-3">
                     <label for="cidade" class="form-label">Cidade</label>
                     <select class="form-select @error('cidade') is-invalid @enderror" name="cidade">
                         <option value="">Selecione a Cidade</option>
                         @php
-                            // Lista de exemplo de Cidades. O valor $user->cidade será pré-selecionado.
                             $cidadesExemplo = ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Salvador', 'Curitiba', 'Porto Alegre', 'Recife', 'Brasília'];
                             $cidadeAtual = old('cidade', $user->cidade);
                         @endphp
@@ -49,10 +47,8 @@
                     @enderror
                 </div>
 
-                <!-- NOVO CAMPO: CPF (Com Máscara JS) -->
                 <div class="mb-3">
                     <label for="cpf" class="form-label">CPF</label>
-                    <!-- O valor do $user->cpf é formatado pelo Acessor no modelo User.php -->
                     <input class="form-control @error('cpf') is-invalid @enderror" 
                            type="text" id="cpf_edit" name="cpf" value="{{ old('cpf', $user->cpf) }}" 
                            placeholder="Apenas números (formatação automática)" maxlength="14">
@@ -61,13 +57,12 @@
                     @enderror
                 </div>
 
-                <!-- NOVO CAMPO: TIPO -->
                 <div class="mb-3">
                     <label for="tipo" class="form-label">Tipo de Usuário</label>
                     <select class="form-select @error('tipo') is-invalid @enderror" name="tipo">
                         <option value="">Selecione o tipo</option>
                         <option value="Cliente" {{ old('tipo', $user->tipo) == 'Cliente' ? 'selected' : '' }}>Cliente</option>
-                        <option value="Funcionario" {{ old('tipo', $user->tipo) == 'Funcionario' ? 'selected' : '' }}>Funcionário</option>
+                        <option value="Prestador" {{ old('tipo', $user->tipo) == 'Prestador' ? 'selected' : '' }}>Prestador</option>
                     </select>
                     @error('tipo')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -86,7 +81,6 @@
                     @enderror
                 </div>
 
-
                 <div class="mb-3">
                     <label for="password_confirmation" class="form-label">Confirmar Nova Senha</label>
                     <input class="form-control" type="password" name="password_confirmation">
@@ -102,25 +96,20 @@
 </div>
 
 <script>
+    // Script de máscara (igual ao que você enviou)
     document.addEventListener('DOMContentLoaded', function() {
         const cpfInput = document.getElementById('cpf_edit');
-
-        // Função para aplicar a máscara do CPF: XXX.XXX.XXX-XX
         function maskCPF(value) {
-            value = value.replace(/\D/g, ""); // Remove tudo que não for dígito
-            value = value.slice(0, 11); // Limita a 11 dígitos
-            
-            // Aplica a formatação: 123.456.789-00
+            value = value.replace(/\D/g, ""); 
+            value = value.slice(0, 11); 
             value = value.replace(/(\d{3})(\d)/, "$1.$2");
             value = value.replace(/(\d{3})(\d)/, "$1.$2");
             value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-            
             return value;
         }
-
-        // Aplica a máscara no valor inicial carregado pelo Laravel (que já vem formatado pelo Acessor)
-        cpfInput.value = maskCPF(cpfInput.value.replace(/[^0-9]/g, ''));
-
+        if (cpfInput.value) {
+             cpfInput.value = maskCPF(cpfInput.value.replace(/[^0-9]/g, ''));
+        }
         cpfInput.addEventListener('input', function(e) {
             e.target.value = maskCPF(e.target.value);
         });

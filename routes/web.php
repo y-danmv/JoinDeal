@@ -2,26 +2,54 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController; // Importado o novo controller
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\OrderController;
 
+/*
+|--------------------------------------------------------------------------
+| Rotas Públicas (Não exigem login)
+|--------------------------------------------------------------------------
+*/
 Route::GET('/', [AuthController::class, 'home'])->name('home');
 
-Route::GET('/login', [AuthController::class, 'login'])->name('login');
-Route::POST('/loginSubmit', [AuthController::class, 'loginSubmit'])->name('login.submit');
+// Rotas de Serviços que TODOS podem ver (listagem e detalhes)
+Route::resource('services', ServiceController::class)->only(['index', 'show']);
 
-Route::get('/register', [AuthController::class, 'register'])->name('register');
-Route::post('/registerSubmit', [AuthController::class, 'registerSubmit'])->name('register.submit');
 
-Route::GET('/logout', [AuthController::class, 'logout'])->name('logout');
+/*
+|--------------------------------------------------------------------------
+| Rotas de Visitantes (Apenas para quem NÃO está logado)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+    Route::GET('/login', [AuthController::class, 'login'])->name('login');
+    Route::POST('/loginSubmit', [AuthController::class, 'loginSubmit'])->name('login.submit');
+    Route::get('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/registerSubmit', [AuthController::class, 'registerSubmit'])->name('register.submit');
+});
 
-// ----------------------------------------------------------------------
-// ROTAS DE CRUD PARA USUÁRIOS
-// A rota 'resource' cria as seguintes URLs:
-// GET /users           -> users.index  (Lista)
-// GET /users/{user}    -> users.show   (Detalhe)
-// GET /users/{user}/edit -> users.edit (Formulário de edição)
-// PUT/PATCH /users/{user} -> users.update (Salva edição)
-// DELETE /users/{user} -> users.destroy (Exclui)
-// ----------------------------------------------------------------------
-Route::resource('users', UserController::class)->except(['create', 'store']); 
-// *O 'create' e 'store' (cadastro) já estão no AuthController (register/registerSubmit), então os excluimos daqui.
+
+/*
+|--------------------------------------------------------------------------
+| Rotas Protegidas (Exigem Login - 'auth')
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    
+    // Rota de Logout
+    Route::GET('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Rotas de CRUD para Usuários (protegidas)
+    Route::resource('users', UserController::class)->except(['create', 'store']); 
+
+    // Rotas de Serviços (protegidas)
+    // (A 'index' e 'show' já foram definidas fora do grupo)
+    Route::resource('services', ServiceController::class)->except(['index', 'show']);
+
+    // Rotas de Contratações (protegidas)
+    Route::get('/contratacoes', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/servicos/{service}/contratar', [OrderController::class, 'store'])->name('orders.store');
+    Route::patch('/contratacoes/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+});
