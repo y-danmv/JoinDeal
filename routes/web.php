@@ -8,18 +8,14 @@ use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Públicas (Não exigem login)
+| 1. Rotas Públicas Específicas
 |--------------------------------------------------------------------------
 */
 Route::GET('/', [AuthController::class, 'home'])->name('home');
 
-// Rotas de Serviços que TODOS podem ver (listagem e detalhes)
-Route::resource('services', ServiceController::class)->only(['index', 'show']);
-
-
 /*
 |--------------------------------------------------------------------------
-| Rotas de Visitantes (Apenas para quem NÃO está logado)
+| 2. Rotas de Visitantes (Apenas quem NÃO está logado)
 |--------------------------------------------------------------------------
 */
 Route::middleware('guest')->group(function () {
@@ -29,27 +25,41 @@ Route::middleware('guest')->group(function () {
     Route::post('/registerSubmit', [AuthController::class, 'registerSubmit'])->name('register.submit');
 });
 
-
 /*
 |--------------------------------------------------------------------------
-| Rotas Protegidas (Exigem Login - 'auth')
+| 3. Rotas Protegidas (Exigem Login)
 |--------------------------------------------------------------------------
+| IMPORTANTE: Estas rotas vêm ANTES das rotas públicas de serviço para
+| evitar conflito. O Laravel vai ler '/services/create' aqui primeiro.
 */
 Route::middleware('auth')->group(function () {
     
-    // Rota de Logout
+    // Logout
     Route::GET('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Rotas de CRUD para Usuários (protegidas)
+    // --- Rotas de Serviços (Apenas para criar/editar/deletar) ---
+    // Definimos manualmente para garantir a ordem correta
+    Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
+    Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+    Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
+    Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+    Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+
+    // --- Rotas de Usuários ---
     Route::resource('users', UserController::class)->except(['create', 'store']); 
 
-    // Rotas de Serviços (protegidas)
-    // (A 'index' e 'show' já foram definidas fora do grupo)
-    Route::resource('services', ServiceController::class)->except(['index', 'show']);
-
-    // Rotas de Contratações (protegidas)
+    // --- Rotas de Contratações ---
     Route::get('/contratacoes', [OrderController::class, 'index'])->name('orders.index');
     Route::post('/servicos/{service}/contratar', [OrderController::class, 'store'])->name('orders.store');
     Route::patch('/contratacoes/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-
 });
+
+/*
+|--------------------------------------------------------------------------
+| 4. Rotas Públicas de Visualização (Ficam por último)
+|--------------------------------------------------------------------------
+| Deixamos estas por último porque '/services/{service}' captura qualquer
+| coisa. Se estivesse no topo, capturaria o 'create' e daria erro.
+*/
+Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');

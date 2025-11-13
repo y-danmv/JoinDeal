@@ -1,27 +1,45 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User; // Importar o Model
-use Illuminate\Support\Facades\Auth; // Para autenticação
-use Illuminate\Support\Facades\Hash; // Para criptografar senha
-use Illuminate\Support\Facades\Validator; // Para validação
-use Illuminate\Validation\Rule; // Para regras de validação
-use Carbon\Carbon; // Para data/hora
+use App\Models\User;
+use App\Models\Order; // Importado para o Dashboard
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
     /**
-     * Mostra a página Home (view 'home')
+     * Mostra a Home (Se deslogado: Landing Page | Se logado: Dashboard)
      */
     public function home()
     {
-        return view('home'); // Assumindo que você tem 'home.blade.php'
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            // Conta quantas contratações eu fiz como cliente
+            $totalCompras = Order::where('cliente_id', $user->id)->count();
+
+            // Variáveis para Prestador
+            $totalMeusServicos = 0;
+            $totalVendas = 0;
+
+            if ($user->tipo == 'Prestador') {
+                $totalMeusServicos = $user->services()->count();
+                $totalVendas = $user->ordersAsProvider()->count();
+            }
+
+            return view('home', compact('totalCompras', 'totalMeusServicos', 'totalVendas'));
+        }
+
+        return view('home'); // Visitante
     }
 
     /**
-     * Mostra o formulário de login (view 'auth.login')
+     * Mostra o formulário de login
      */
     public function login()
     {
@@ -29,7 +47,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Mostra o formulário de registro (view 'auth.register')
+     * Mostra o formulário de registro
      */
     public function register()
     {
@@ -41,14 +59,13 @@ class AuthController extends Controller
      */
     public function registerSubmit(Request $request)
     {
-        // Validação dos dados (ajustado para 'nome')
         $validator = Validator::make($request->all(), [
-            'nome' => 'required|string|max:100', // Campo 'nome'
+            'nome' => 'required|string|max:100',
             'email' => 'required|string|email|max:100|unique:users',
-            'cpf' => 'required|string|max:14|unique:users', // CPF único
+            'cpf' => 'required|string|max:14|unique:users',
             'cidade' => 'required|string|max:100',
-            'tipo' => ['required', Rule::in(['Cliente', 'Prestador'])], // 'Prestador'
-            'password' => 'required|string|min:8|confirmed', // 'confirmed' verifica 'password_confirmation'
+            'tipo' => ['required', Rule::in(['Cliente', 'Prestador'])],
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -57,20 +74,17 @@ class AuthController extends Controller
                         ->withInput();
         }
 
-        // Remove a máscara do CPF (XXX.XXX.XXX-XX) antes de salvar
         $cpfLimpo = preg_replace('/\D/', '', $request->cpf);
 
-        // Cria o usuário
         $user = User::create([
             'nome' => $request->nome,
             'email' => $request->email,
-            'cpf' => $cpfLimpo, // Salva CPF limpo
+            'cpf' => $cpfLimpo,
             'cidade' => $request->cidade,
             'tipo' => $request->tipo,
             'password' => Hash::make($request->password),
         ]);
 
-        // Loga o usuário automaticamente após o registro
         Auth::login($user);
 
         return redirect()->route('home')->with('success', 'Cadastro realizado com sucesso!');
@@ -82,7 +96,6 @@ class AuthController extends Controller
      */
     public function loginSubmit(Request $request)
     {
-        // Validação
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -91,20 +104,19 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            // Atualiza o 'last_login'
             $user = Auth::user();
             $user->last_login = Carbon::now();
             $user->save();
             
-            // Regenera a sessão
             $request->session()->regenerate();
 
-            return redirect()->intended('home')->with('success', 'Login efetuado com sucesso!');
+            // <-- CORREÇÃO AQUI
+            // Mudei 'home' (que é o caminho URL) para '/' (o caminho raiz do site)
+            return redirect()->intended('/')->with('success', 'Login efetuado com sucesso!');
         }
 
-        // Falha no login
         return back()->withErrors([
-            'email' => 'As credenciais fornecidas não correspondem aos nossos registros.',
+            'email' => 'As credenciais fornecidas não correspondem.',
         ])->withInput($request->only('email'));
     }
 

@@ -14,7 +14,8 @@
     </div>
 
     <div class="row g-4">
-        @forelse ($services as $service)
+        {{-- AQUI ESTÁ A CORREÇÃO: USAMOS $services, não $users --}}
+        @forelse ($services as $service) 
         <div class="col-md-6 col-lg-4">
             <div class="card p-4 shadow-lg h-100 d-flex flex-column">
                 <div class="flex-grow-1">
