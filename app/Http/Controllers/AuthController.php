@@ -1,106 +1,133 @@
-<?php 
-
+<?php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Order; // Importado para o Dashboard
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
+    /**
+     * Mostra a Home (Se deslogado: Landing Page | Se logado: Dashboard)
+     */
     public function home()
     {
-    return view('home');
-    }
-    
-    public function login(){
-        return view('login');
-    }
+        if (Auth::check()) {
+            $user = Auth::user();
 
-    public function loginSubmit(Request $request){
-        // Obtendo dados do request
-        // dd($request);
+            // Conta quantas contratações eu fiz como cliente
+            $totalCompras = Order::where('cliente_id', $user->id)->count();
 
-        $request->validate([
-            'text_username' => 'required|email',
-            'text_password' => 'required|min:6|max:12',
-        ],
-        [
-            //Mensagem para text_username
-            'text_username.required' => 'O campo de e-mail é obrigatório',
-            'text_username.email' => 'O campo de e-mail deve conter um endereço válido',
+            // Variáveis para Prestador
+            $totalMeusServicos = 0;
+            $totalVendas = 0;
 
-            //Mensagem para text_password
-            'text_password.required' => 'A senha é obrigatória',
-            'text_password.min' => 'A senha deve ter pelo menos :min caracteres',
-            'text_password.max' => 'A senha deve ter no máximo :max caracteres',
+            if ($user->tipo == 'Prestador') {
+                $totalMeusServicos = $user->services()->count();
+                $totalVendas = $user->ordersAsProvider()->count();
+            }
 
-        ]
-    );
+            return view('home', compact('totalCompras', 'totalMeusServicos', 'totalVendas'));
+        }
 
-        $username = $request->input('text_username');
-        $password = $request->input('text_password');
-        // return "OK";
-        // echo "Usuário: " . $username . "<BR>";
-        // echo "Password: " . $password;
-
-        // try{
-        //     DB::connection()->getPdo();
-        //     echo "Conexão com o banco de dados feita com sucesso!";
-        // } catch(\PDOException $e){
-        //     echo "A conexão falhou: " . $e->getMessage();
-        // }
-
-        // $usuarios = User::all()->toArray();
-        // echo '<pre>';
-        // print_r($usuarios);
-        // echo '</pre>';
-
-        //Selecionando apenas 1 usuario
-        $user = User::where('username', $username)
-                      ->whereNull('deleted_at')
-                      ->first();
-        echo '<pre>';
-        print_r($user);
-        echo '</pre>';
-
+        return view('home'); // Visitante
     }
 
+    /**
+     * Mostra o formulário de login
+     */
+    public function login()
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Mostra o formulário de registro
+     */
     public function register()
-{
-    return view('register'); // vai carregar a view de cadastro
-}
+    {
+        return view('auth.register');
+    }
 
-public function registerSubmit(Request $request)
-{
-    $request->validate([
-        'text_username' => 'required|email|unique:users,username',
-        'text_password' => 'required|min:6|max:12',
-    ], [
-        'text_username.required' => 'O campo de e-mail é obrigatório',
-        'text_username.email' => 'O campo de e-mail deve conter um endereço válido',
-        'text_username.unique' => 'Este e-mail já está em uso',
-        'text_password.required' => 'A senha é obrigatória',
-        'text_password.min' => 'A senha deve ter pelo menos :min caracteres',
-        'text_password.max' => 'A senha deve ter no máximo :max caracteres',
-    ]);
+    /**
+     * Processa o formulário de Registro
+     */
+    public function registerSubmit(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nome' => 'required|string|max:100',
+            'email' => 'required|string|email|max:100|unique:users',
+            'cpf' => 'required|string|max:14|unique:users',
+            'cidade' => 'required|string|max:100',
+            'tipo' => ['required', Rule::in(['Cliente', 'Prestador'])],
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-    // Criar novo usuário
-    $user = new User();
-    $user->username = $request->input('text_username');
-    $user->password = bcrypt($request->input('text_password'));
-    $user->save();
+        if ($validator->fails()) {
+            return redirect()->back()
+                        ->withErrors($validator)
+                        ->withInput();
+        }
 
-    // Redireciona para login com mensagem
-    return redirect()->route('login')->with('success', 'Cadastro realizado com sucesso! Faça login.');
-}
+        $cpfLimpo = preg_replace('/\D/', '', $request->cpf);
 
+        $user = User::create([
+            'nome' => $request->nome,
+            'email' => $request->email,
+            'cpf' => $cpfLimpo,
+            'cidade' => $request->cidade,
+            'tipo' => $request->tipo,
+            'password' => Hash::make($request->password),
+        ]);
 
+        Auth::login($user);
 
-    public function logout(){
-        echo 'Desconectado';
+        return redirect()->route('home')->with('success', 'Cadastro realizado com sucesso!');
     }
 
 
+    /**
+     * Processa o formulário de Login
+     */
+    public function loginSubmit(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $user->last_login = Carbon::now();
+            $user->save();
+            
+            $request->session()->regenerate();
+
+            // <-- CORREÇÃO AQUI
+            // Mudei 'home' (que é o caminho URL) para '/' (o caminho raiz do site)
+            return redirect()->intended('/')->with('success', 'Login efetuado com sucesso!');
+        }
+
+        return back()->withErrors([
+            'email' => 'As credenciais fornecidas não correspondem.',
+        ])->withInput($request->only('email'));
+    }
+
+    /**
+     * Processa o Logout
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/')->with('success', 'Você saiu da sua conta.');
+    }
 }
