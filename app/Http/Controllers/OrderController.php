@@ -71,12 +71,6 @@ class OrderController extends Controller
         $horarioSolicitado = Carbon::parse($request->data_agendamento);
         $inicioSolicitado = $horarioSolicitado;
         $fimSolicitado = $horarioSolicitado->copy()->addHour(); 
-
-        // 
-        // =============================================
-        // <-- INÍCIO DA ALTERAÇÃO (LÓGICA DO CLIENTE) -->
-        // =============================================
-        //
         
         // 3. VERIFICAÇÃO DE CONFLITO DE HORÁRIO DO CLIENTE
         // Verifica se o CLIENTE (usuário logado) já tem um agendamento nesse horário

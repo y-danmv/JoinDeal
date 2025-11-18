@@ -129,7 +129,7 @@
                 <i class="bi bi-search fs-4 me-3 text-info"></i>
                 <div>
                     <div class="fw-bold">Procurar Serviços</div>
-                    <div class="small text-white-50">Contrate professionals</div>
+                    <div class="small text-white-50">Contrate profissionais</div>
                 </div>
             </a>
         </div>
